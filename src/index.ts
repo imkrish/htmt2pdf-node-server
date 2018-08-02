@@ -1,6 +1,7 @@
 import { html } from './html'
 import puppeteer from 'puppeteer'
 import express from 'express'
+import { promisify } from 'util'
 
 const runServer = async () => {
   const server = express()
@@ -23,7 +24,8 @@ const getPDFFromHTML = async (html: string) => {
   })
   const page = await browser.newPage()
   await page.setContent(html)
-  await timeout(3)
+  const once = promisify(page.once.bind(page))
+  await once('load')
   const pdf = await page.pdf({ format: 'A4', landscape: true })
   await browser.close()
   return pdf
